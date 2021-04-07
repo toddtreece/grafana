@@ -93,6 +93,9 @@ var builtInRoleGrants = map[string][]string{
 	"Viewer": {
 		"grafana:builtin:users:read:self",
 	},
+	"Admin": {
+		"roles:adminUsers:editor",
+	},
 }
 
 func getBuiltInRole(role string) *accesscontrol.RoleDTO {
