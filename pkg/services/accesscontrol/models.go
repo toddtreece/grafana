@@ -5,6 +5,32 @@ import (
 	"time"
 )
 
+const (
+	// Permission actions
+
+	// We can ignore gosec G101 since this does not contain any credentials
+	// nolint:gosec
+	ActionUsersAuthTokenList = "users.authtoken:list"
+	// We can ignore gosec G101 since this does not contain any credentials
+	// nolint:gosec
+	ActionUsersAuthTokenUpdate = "users.authtoken:update"
+	// We can ignore gosec G101 since this does not contain any credentials
+	// nolint:gosec
+	ActionUsersPasswordUpdate    = "users.password.update"
+	ActionUsersDelete            = "users:delete"
+	ActionUsersCreate            = "users:create"
+	ActionUsersEnable            = "users:enable"
+	ActionUsersDisable           = "users:disable"
+	ActionUsersPermissionsUpdate = "users.permissions.update"
+	ActionUsersLogout            = "users:logout"
+	ActionUsersQuotasList        = "users.quotas:list"
+	ActionUsersQuotasUpdate      = "users.quotas:update"
+
+	// Global Scopes
+	ScopeUsersAll  = "users:*"
+	ScopeUsersSelf = "users:self"
+)
+
 var (
 	ErrRoleNotFound                = errors.New("role not found")
 	ErrTeamRoleAlreadyAdded        = errors.New("role is already added to this team")
