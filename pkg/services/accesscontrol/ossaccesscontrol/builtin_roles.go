@@ -27,10 +27,10 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 		Name:    "roles:adminUsers:viewer",
 		Version: 2,
 		Permissions: []accesscontrol.Permission{
-			{
-				Permission: accesscontrol.ActionUsersAuthTokenList,
-				Scope:      accesscontrol.ScopeUsersAll,
-			},
+			// {
+			// 	Permission: accesscontrol.ActionUsersAuthTokenList,
+			// 	Scope:      accesscontrol.ScopeUsersAll,
+			// },
 			{
 				Permission: accesscontrol.ActionUsersQuotasList,
 				Scope:      accesscontrol.ScopeUsersAll,
@@ -41,10 +41,10 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 		Name:    "roles:adminUsers:editor",
 		Version: 1,
 		Permissions: []accesscontrol.Permission{
-			{
-				Permission: accesscontrol.ActionUsersAuthTokenList,
-				Scope:      accesscontrol.ScopeUsersAll,
-			},
+			// {
+			// 	Permission: accesscontrol.ActionUsersAuthTokenList,
+			// 	Scope:      accesscontrol.ScopeUsersAll,
+			// },
 			{
 				Permission: accesscontrol.ActionUsersPasswordUpdate,
 				Scope:      accesscontrol.ScopeUsersAll,
