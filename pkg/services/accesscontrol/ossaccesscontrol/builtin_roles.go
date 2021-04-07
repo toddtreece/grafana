@@ -32,7 +32,19 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 			// 	Scope:      accesscontrol.ScopeUsersAll,
 			// },
 			{
+				Permission: accesscontrol.ActionUsersRead,
+				Scope:      accesscontrol.ScopeUsersAll,
+			},
+			{
+				Permission: accesscontrol.ActionUsersTeamRead,
+				Scope:      accesscontrol.ScopeUsersAll,
+			},
+			{
 				Permission: accesscontrol.ActionUsersQuotasList,
+				Scope:      accesscontrol.ScopeUsersAll,
+			},
+			{
+				Permission: accesscontrol.ActionUsersCreate,
 				Scope:      accesscontrol.ScopeUsersAll,
 			},
 		},

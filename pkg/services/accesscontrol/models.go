@@ -7,6 +7,9 @@ import (
 
 const (
 	// Permission actions
+	ActionUsersRead     = "users:read"
+	ActionUsersWrite    = "users:write"
+	ActionUsersTeamRead = "users.teams:read"
 
 	// We can ignore gosec G101 since this does not contain any credentials
 	// nolint:gosec
