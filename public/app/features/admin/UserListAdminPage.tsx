@@ -9,6 +9,7 @@ import Page from 'app/core/components/Page/Page';
 import { getNavModel } from '../../core/selectors/navModel';
 import { fetchUsers, changeQuery, changePage } from './state/actions';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
+import { contextSrv } from 'app/core/core';
 
 interface OwnProps {}
 
@@ -54,7 +55,11 @@ const UserListAdminPageUnConnected: React.FC<Props> = (props) => {
                 onChange={(event) => changeQuery(event.currentTarget.value)}
                 prefix={<Icon name="search" />}
               />
-              <LinkButton href="admin/users/create" variant="primary">
+              <LinkButton
+                href="admin/users/create"
+                variant="primary"
+                disabled={!contextSrv.hasPermission('users:creates')}
+              >
                 New user
               </LinkButton>
             </HorizontalGroup>

@@ -427,6 +427,15 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 		ContentDeliveryURL:      hs.Cfg.GetContentDeliveryURL(hs.License.ContentDeliveryPrefix()),
 	}
 
+	if hs.Cfg.FeatureToggles["accesscontrol"] {
+		userPermissions, err := hs.AccessControl.GetUserPermissions(c.Req.Context(), c.SignedInUser)
+		if err != nil {
+			return nil, err
+		}
+
+		data.User.Permissions = userPermissions
+	}
+
 	if setting.DisableGravatar {
 		data.User.GravatarUrl = hs.Cfg.AppSubURL + "/public/img/user_profile.png"
 	}

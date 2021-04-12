@@ -93,6 +93,7 @@ export class TeamList extends PureComponent<Props, any> {
     const isCanAdminAndViewer = editorsCanAdmin && signedInUser.orgRole === OrgRole.Viewer;
     const disabledClass = isCanAdminAndViewer ? ' disabled' : '';
     const newTeamHref = isCanAdminAndViewer ? '#' : 'org/teams/new';
+    console.log(signedInUser);
 
     return (
       <>

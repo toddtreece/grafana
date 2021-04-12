@@ -17,12 +17,18 @@ export class User {
   lightTheme: boolean;
   hasEditPermissionInFolders: boolean;
   email?: string;
+  permissions: UserPermission[];
 
   constructor() {
     if (config.bootData.user) {
       _.extend(this, config.bootData.user);
     }
   }
+}
+
+export class UserPermission {
+  permission: string;
+  scope: string;
 }
 
 export class ContextSrv {
@@ -59,6 +65,10 @@ export class ContextSrv {
 
   hasRole(role: string) {
     return this.user.orgRole === role;
+  }
+
+  hasPermission(permission: string) {
+    return this.user.permissions.find((p) => p.permission === permission) !== undefined;
   }
 
   isGrafanaVisible() {
