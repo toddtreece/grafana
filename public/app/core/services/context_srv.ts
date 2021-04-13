@@ -27,7 +27,7 @@ export class User {
 }
 
 export class UserPermission {
-  permission: string;
+  action: string;
   scope: string;
 }
 
@@ -67,8 +67,9 @@ export class ContextSrv {
     return this.user.orgRole === role;
   }
 
-  hasPermission(permission: string) {
-    return this.user.permissions.find((p) => p.permission === permission) !== undefined;
+  // TODO: use scope as well?
+  hasPermission(action: string) {
+    return this.user.permissions.find((p) => p.action === action) !== undefined;
   }
 
   isGrafanaVisible() {

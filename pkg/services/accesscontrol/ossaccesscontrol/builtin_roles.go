@@ -12,16 +12,16 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 		Version: 1,
 		Permissions: []accesscontrol.Permission{
 			{
-				Permission: "users:read",
-				Scope:      accesscontrol.ScopeUsersSelf,
+				Action: "users:read",
+				Scope:  accesscontrol.ScopeUsersSelf,
 			},
 			{
-				Permission: "users.tokens:list",
-				Scope:      accesscontrol.ScopeUsersSelf,
+				Action: "users.tokens:list",
+				Scope:  accesscontrol.ScopeUsersSelf,
 			},
 			{
-				Permission: "users.teams:read",
-				Scope:      accesscontrol.ScopeUsersSelf,
+				Action: "users.teams:read",
+				Scope:  accesscontrol.ScopeUsersSelf,
 			},
 		},
 	},
@@ -30,24 +30,24 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 		Version: 2,
 		Permissions: []accesscontrol.Permission{
 			// {
-			// 	Permission: accesscontrol.ActionUsersAuthTokenList,
+			// 	Action: accesscontrol.ActionUsersAuthTokenList,
 			// 	Scope:      accesscontrol.ScopeUsersAll,
 			// },
 			{
-				Permission: accesscontrol.ActionUsersRead,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersRead,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersTeamRead,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersTeamRead,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersQuotasList,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersQuotasList,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersCreate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersCreate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 		},
 	},
@@ -56,48 +56,48 @@ var builtInRolesMap = map[string]accesscontrol.RoleDTO{
 		Version: 1,
 		Permissions: []accesscontrol.Permission{
 			// {
-			// 	Permission: accesscontrol.ActionUsersAuthTokenList,
+			// 	Action: accesscontrol.ActionUsersAuthTokenList,
 			// 	Scope:      accesscontrol.ScopeUsersAll,
 			// },
 			{
-				Permission: accesscontrol.ActionUsersPasswordUpdate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersPasswordUpdate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersCreate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersCreate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersDelete,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersDelete,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersEnable,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersEnable,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersDisable,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersDisable,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersPermissionsUpdate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersPermissionsUpdate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersLogout,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersLogout,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersAuthTokenUpdate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersAuthTokenUpdate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersQuotasList,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersQuotasList,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 			{
-				Permission: accesscontrol.ActionUsersQuotasUpdate,
-				Scope:      accesscontrol.ScopeUsersAll,
+				Action: accesscontrol.ActionUsersQuotasUpdate,
+				Scope:  accesscontrol.ScopeUsersAll,
 			},
 		},
 	},
