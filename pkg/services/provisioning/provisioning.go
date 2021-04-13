@@ -38,6 +38,29 @@ func init() {
 	})
 }
 
+// ToDo make a better instantiation of the provisioning service.
+
+// NewProvisioningServiceImpl creates a new instance of a ProvisioningService
+// without relying on facebook's inject fwk
+func NewProvisioningServiceImpl(
+	cfg *setting.Cfg,
+	requestHandler plugifaces.DataRequestHandler,
+	sqlStore *sqlstore.SQLStore,
+	pluginManager plugifaces.Manager,
+) *ProvisioningServiceImpl {
+	return &ProvisioningServiceImpl{
+		log:                     log.New("provisioning"),
+		newDashboardProvisioner: dashboards.New,
+		provisionNotifiers:      notifiers.Provision,
+		provisionDatasources:    datasources.Provision,
+		provisionPlugins:        plugins.Provision,
+		Cfg:                     cfg,
+		RequestHandler:          requestHandler,
+		SQLStore:                sqlStore,
+		PluginManager:           pluginManager,
+	}
+}
+
 func newProvisioningServiceImpl(
 	newDashboardProvisioner dashboards.DashboardProvisionerFactory,
 	provisionNotifiers func(string) error,
