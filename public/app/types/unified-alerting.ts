@@ -89,5 +89,14 @@ export interface RuleLocation {
   ruleSourceName: string;
   namespace: string;
   groupName: string;
+}
+
+export interface CloudRuleIdentifier extends RuleLocation {
   ruleHash: number;
 }
+
+export interface GrafanaRuleIdentifier {
+  uid: string;
+}
+
+export type RuleIdentifier = CloudRuleIdentifier | GrafanaRuleIdentifier;
