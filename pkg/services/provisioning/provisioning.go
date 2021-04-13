@@ -43,8 +43,8 @@ func newProvisioningServiceImpl(
 	provisionNotifiers func(string) error,
 	provisionDatasources func(string) error,
 	provisionPlugins func(string, plugifaces.Manager) error,
-) *provisioningServiceImpl {
-	return &provisioningServiceImpl{
+) *ProvisioningServiceImpl {
+	return &ProvisioningServiceImpl{
 		log:                     log.New("provisioning"),
 		newDashboardProvisioner: newDashboardProvisioner,
 		provisionNotifiers:      provisionNotifiers,
@@ -53,7 +53,7 @@ func newProvisioningServiceImpl(
 	}
 }
 
-type provisioningServiceImpl struct {
+type ProvisioningServiceImpl struct {
 	Cfg                     *setting.Cfg                  `inject:""`
 	RequestHandler          plugifaces.DataRequestHandler `inject:""`
 	SQLStore                *sqlstore.SQLStore            `inject:""`
@@ -68,11 +68,11 @@ type provisioningServiceImpl struct {
 	mutex                   sync.Mutex
 }
 
-func (ps *provisioningServiceImpl) Init() error {
+func (ps *ProvisioningServiceImpl) Init() error {
 	return ps.RunInitProvisioners()
 }
 
-func (ps *provisioningServiceImpl) RunInitProvisioners() error {
+func (ps *ProvisioningServiceImpl) RunInitProvisioners() error {
 	err := ps.wrapProvisionDatasources()
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (ps *provisioningServiceImpl) RunInitProvisioners() error {
 	return nil
 }
 
-func (ps *provisioningServiceImpl) Run(ctx context.Context) error {
+func (ps *ProvisioningServiceImpl) Run(ctx context.Context) error {
 	err := ps.wrapProvisionDashboards()
 	if err != nil {
 		ps.log.Error("Failed to provision dashboard", "error", err)
@@ -120,7 +120,7 @@ func (ps *provisioningServiceImpl) Run(ctx context.Context) error {
 	}
 }
 
-func (ps *provisioningServiceImpl) RunProvisioner(provisionerUID string) error {
+func (ps *ProvisioningServiceImpl) RunProvisioner(provisionerUID string) error {
 	switch provisionerUID {
 	case DashboardsProvisionerUID:
 		return ps.wrapProvisionDashboards()
@@ -135,25 +135,25 @@ func (ps *provisioningServiceImpl) RunProvisioner(provisionerUID string) error {
 	}
 }
 
-func (ps *provisioningServiceImpl) wrapProvisionDatasources() error {
+func (ps *ProvisioningServiceImpl) wrapProvisionDatasources() error {
 	datasourcePath := filepath.Join(ps.Cfg.ProvisioningPath, "datasources")
 	err := ps.provisionDatasources(datasourcePath)
 	return errutil.Wrap("Datasource provisioning error", err)
 }
 
-func (ps *provisioningServiceImpl) wrapProvisionPlugins() error {
+func (ps *ProvisioningServiceImpl) wrapProvisionPlugins() error {
 	appPath := filepath.Join(ps.Cfg.ProvisioningPath, "plugins")
 	err := ps.provisionPlugins(appPath, ps.PluginManager)
 	return errutil.Wrap("app provisioning error", err)
 }
 
-func (ps *provisioningServiceImpl) wrapProvisionNotifications() error {
+func (ps *ProvisioningServiceImpl) wrapProvisionNotifications() error {
 	alertNotificationsPath := filepath.Join(ps.Cfg.ProvisioningPath, "notifiers")
 	err := ps.provisionNotifiers(alertNotificationsPath)
 	return errutil.Wrap("Alert notification provisioning error", err)
 }
 
-func (ps *provisioningServiceImpl) wrapProvisionDashboards() error {
+func (ps *ProvisioningServiceImpl) wrapProvisionDashboards() error {
 	dashboardPath := filepath.Join(ps.Cfg.ProvisioningPath, "dashboards")
 	dashProvisioner, err := ps.newDashboardProvisioner(dashboardPath, ps.SQLStore, ps.RequestHandler)
 	if err != nil {
@@ -176,7 +176,7 @@ func (ps *provisioningServiceImpl) wrapProvisionDashboards() error {
 	return nil
 }
 
-func (ps *provisioningServiceImpl) GetProvisionerResolvedPath(provisionerUID, name string) (string, error) {
+func (ps *ProvisioningServiceImpl) GetProvisionerResolvedPath(provisionerUID, name string) (string, error) {
 	switch provisionerUID {
 	case DashboardsProvisionerUID:
 		return ps.dashboardProvisioner.GetProvisionerResolvedPath(name), nil
@@ -185,7 +185,7 @@ func (ps *provisioningServiceImpl) GetProvisionerResolvedPath(provisionerUID, na
 	}
 }
 
-func (ps *provisioningServiceImpl) GetAllowUIUpdatesFromConfig(provisionerUID, name string) (bool, error) {
+func (ps *ProvisioningServiceImpl) GetAllowUIUpdatesFromConfig(provisionerUID, name string) (bool, error) {
 	switch provisionerUID {
 	case DashboardsProvisionerUID:
 		return ps.dashboardProvisioner.GetAllowUIUpdatesFromConfig(name), nil
@@ -194,7 +194,7 @@ func (ps *provisioningServiceImpl) GetAllowUIUpdatesFromConfig(provisionerUID, n
 	}
 }
 
-func (ps *provisioningServiceImpl) cancelPolling() {
+func (ps *ProvisioningServiceImpl) cancelPolling() {
 	if ps.pollingCtxCancel != nil {
 		ps.log.Debug("Stop polling for dashboard changes")
 		ps.pollingCtxCancel()
