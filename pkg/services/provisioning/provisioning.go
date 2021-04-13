@@ -44,7 +44,6 @@ func init() {
 // without relying on facebook's inject fwk
 func NewProvisioningServiceImpl(
 	cfg *setting.Cfg,
-	requestHandler plugifaces.DataRequestHandler,
 	sqlStore *sqlstore.SQLStore,
 	pluginManager plugifaces.Manager,
 ) *ProvisioningServiceImpl {
@@ -55,7 +54,6 @@ func NewProvisioningServiceImpl(
 		provisionDatasources:    datasources.Provision,
 		provisionPlugins:        plugins.Provision,
 		Cfg:                     cfg,
-		RequestHandler:          requestHandler,
 		SQLStore:                sqlStore,
 		PluginManager:           pluginManager,
 	}
@@ -178,7 +176,7 @@ func (ps *ProvisioningServiceImpl) wrapProvisionNotifications() error {
 
 func (ps *ProvisioningServiceImpl) wrapProvisionDashboards() error {
 	dashboardPath := filepath.Join(ps.Cfg.ProvisioningPath, "dashboards")
-	dashProvisioner, err := ps.newDashboardProvisioner(dashboardPath, ps.SQLStore, ps.RequestHandler)
+	dashProvisioner, err := ps.newDashboardProvisioner(dashboardPath, ps.SQLStore)
 	if err != nil {
 		return errutil.Wrap("Failed to create provisioner", err)
 	}
