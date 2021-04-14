@@ -87,7 +87,8 @@ export function useCombinedRuleNamespaces(): CombinedRuleNamespace[] {
               ns.groups.push(combinedGroup);
             }
 
-            group.rules.forEach((rule) => {
+            (group.rules ?? []).forEach((rule) => {
+              //@TODO remove ?? once api is fixed
               const existingRule = combinedGroup!.rules.find((existingRule) => {
                 return !existingRule.promRule && isCombinedRuleEqualToPromRule(existingRule, rule);
               });
