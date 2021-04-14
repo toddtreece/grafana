@@ -27,21 +27,14 @@ type ProvisioningService interface {
 
 func init() {
 	registry.Register(&registry.Descriptor{
-		Name: "ProvisioningService",
-		Instance: newProvisioningServiceImpl(
-			dashboards.New,
-			notifiers.Provision,
-			datasources.Provision,
-			plugins.Provision,
-		),
+		Name:         "ProvisioningService",
+		Instance:     NewProvisioningServiceImpl(nil, nil, nil),
 		InitPriority: registry.Low,
 	})
 }
 
-// ToDo make a better instantiation of the provisioning service.
-
 // NewProvisioningServiceImpl creates a new instance of a ProvisioningService
-// without relying on facebook's inject fwk
+// Made public for Overriding Service to be able to create an instance
 func NewProvisioningServiceImpl(
 	cfg *setting.Cfg,
 	sqlStore *sqlstore.SQLStore,
@@ -59,6 +52,7 @@ func NewProvisioningServiceImpl(
 	}
 }
 
+// Used for testing purposes
 func newProvisioningServiceImpl(
 	newDashboardProvisioner dashboards.DashboardProvisionerFactory,
 	provisionNotifiers func(string) error,
