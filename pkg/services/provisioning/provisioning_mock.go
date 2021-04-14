@@ -42,7 +42,7 @@ func (mock *ProvisioningServiceMock) RunProvisioner(provisionerUID string) error
 }
 
 func (mock *ProvisioningServiceMock) GetProvisionerResolvedPath(provisionerUID, name string) (string, error) {
-	mock.Calls.GetProvisionerResolvedPath = append(mock.Calls.GetProvisionerResolvedPath, provisionerUID, name)
+	mock.Calls.GetProvisionerResolvedPath = append(mock.Calls.GetProvisionerResolvedPath, []string{provisionerUID, name})
 	if mock.GetProvisionerResolvedPathFunc != nil {
 		return mock.GetProvisionerResolvedPathFunc(provisionerUID, name)
 	}
@@ -50,7 +50,7 @@ func (mock *ProvisioningServiceMock) GetProvisionerResolvedPath(provisionerUID, 
 }
 
 func (mock *ProvisioningServiceMock) GetAllowUIUpdatesFromConfig(provisionerUID, name string) (bool, error) {
-	mock.Calls.GetAllowUIUpdatesFromConfig = append(mock.Calls.GetAllowUIUpdatesFromConfig, name)
+	mock.Calls.GetAllowUIUpdatesFromConfig = append(mock.Calls.GetAllowUIUpdatesFromConfig, []string{provisionerUID, name})
 	if mock.GetAllowUIUpdatesFromConfigFunc != nil {
 		return mock.GetAllowUIUpdatesFromConfigFunc(provisionerUID, name)
 	}
