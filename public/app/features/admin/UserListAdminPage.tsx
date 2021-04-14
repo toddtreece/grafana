@@ -58,7 +58,7 @@ const UserListAdminPageUnConnected: React.FC<Props> = (props) => {
               <LinkButton
                 href="admin/users/create"
                 variant="primary"
-                disabled={!contextSrv.hasPermission('users:create')}
+                disabled={!contextSrv.hasPermission('users:create', 'users:*')}
               >
                 New user
               </LinkButton>

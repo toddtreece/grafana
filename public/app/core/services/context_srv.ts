@@ -17,7 +17,7 @@ export class User {
   lightTheme: boolean;
   hasEditPermissionInFolders: boolean;
   email?: string;
-  permissions: UserPermission[];
+  permissions: UserPermission;
 
   constructor() {
     if (config.bootData.user) {
@@ -26,10 +26,9 @@ export class User {
   }
 }
 
-export class UserPermission {
-  action: string;
-  scope: string;
-}
+export type UserPermission = {
+  [key: string]: { [key: string]: string };
+};
 
 export class ContextSrv {
   pinned: any;
@@ -67,9 +66,8 @@ export class ContextSrv {
     return this.user.orgRole === role;
   }
 
-  // TODO: use scope as well?
-  hasPermission(action: string) {
-    return this.user.permissions.find((p) => p.action === action) !== undefined;
+  hasPermission(action: string, scope?: string) {
+    return this.user.permissions[action] && (scope ? this.user.permissions[action][scope] : true);
   }
 
   isGrafanaVisible() {
