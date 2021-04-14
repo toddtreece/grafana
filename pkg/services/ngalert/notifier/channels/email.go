@@ -26,7 +26,6 @@ type EmailNotifier struct {
 	old_notifiers.NotifierBase
 	Addresses   []string
 	SingleEmail bool
-	AutoResolve bool
 	log         log.Logger
 	externalUrl *url.URL
 }
@@ -36,7 +35,6 @@ type EmailNotifier struct {
 func NewEmailNotifier(model *models.AlertNotification, externalUrl *url.URL) (*EmailNotifier, error) {
 	addressesString := model.Settings.Get("addresses").MustString()
 	singleEmail := model.Settings.Get("singleEmail").MustBool(false)
-	autoResolve := model.Settings.Get("autoResolve").MustBool(true)
 
 	if addressesString == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find addresses in settings"}
@@ -49,7 +47,6 @@ func NewEmailNotifier(model *models.AlertNotification, externalUrl *url.URL) (*E
 		NotifierBase: old_notifiers.NewNotifierBase(model),
 		Addresses:    addresses,
 		SingleEmail:  singleEmail,
-		AutoResolve:  autoResolve,
 		log:          log.New("alerting.notifier.email"),
 		externalUrl:  externalUrl,
 	}, nil
@@ -108,5 +105,5 @@ func getTitleFromTemplateData(data *template.Data) string {
 }
 
 func (en *EmailNotifier) SendResolved() bool {
-	return en.AutoResolve
+	return !en.GetDisableResolveMessage()
 }
