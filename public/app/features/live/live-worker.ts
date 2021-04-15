@@ -1,20 +1,23 @@
 import Centrifuge from 'centrifuge/dist/centrifuge';
-import { config } from '@grafana/runtime';
 import { WorkerEventEnum, WorkerRequest, WorkerRequestType, WorkerEventType } from './types';
 
-const liveUrl = `${config.appUrl}live/ws`.replace(/^(http)(s)?:\/\//, 'ws$2://');
 const subscriptions = new Map<string, Centrifuge.Subscription>();
-const centrifuge = new Centrifuge(liveUrl, {
-  debug: true,
-});
+let centrifuge: Centrifuge;
 
 // @ts-ignore
 const eventFn = (id: string, type: WorkerEventType) => (context) => postMessage({ type, id, context });
 
-const onConnect = (sessionId: string) => {
+const onConnect = (sessionId: string, liveUrl: string) => {
+  centrifuge = new Centrifuge(liveUrl, {
+    debug: true,
+  });
   centrifuge.setConnectData({
     sessionId: sessionId,
   });
+  // @ts-ignore
+  centrifuge.on('connect', () => self.postMessage({ type: WorkerEventEnum.Connected }));
+  // @ts-ignore
+  centrifuge.on('disconnect', () => self.postMessage({ type: WorkerEventEnum.Disconnected }));
   centrifuge.connect();
 };
 
@@ -39,11 +42,12 @@ const onPublish = (id: string, data: any) => {
   centrifuge.publish(id, data);
 };
 
-addEventListener('message', (event) => {
+// @ts-ignore
+self.onmessage = (event) => {
   const req: WorkerRequest = event.data;
   switch (req.type) {
     case WorkerRequestType.Connect:
-      return onConnect(req.sessionId);
+      return onConnect(req.sessionId, req.liveUrl);
     case WorkerRequestType.Subscribe:
       return onSubscribe(req.id);
     case WorkerRequestType.Unsubscribe:
@@ -51,9 +55,4 @@ addEventListener('message', (event) => {
     case WorkerRequestType.Publish:
       return onPublish(req.id, req.data);
   }
-});
-
-// @ts-ignore
-centrifuge.on('connect', () => postMessage({ type: WorkerEventEnum.Connected }));
-// @ts-ignore
-centrifuge.on('disconnect', () => postMessage({ type: WorkerEventEnum.Disconnected }));
+};

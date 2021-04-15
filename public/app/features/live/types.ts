@@ -13,7 +13,6 @@ export enum WorkerEventEnum {
   SubscriptionFailed,
   Received,
 }
-
 export interface WorkerConnected {
   type: WorkerEventEnum.Connected;
 }
@@ -68,6 +67,7 @@ export enum WorkerRequestType {
 export interface WorkerConnect {
   type: WorkerRequestType.Connect;
   sessionId: string;
+  liveUrl: string;
 }
 
 export interface WorkerSubscribe {

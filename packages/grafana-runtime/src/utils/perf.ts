@@ -15,14 +15,14 @@ export const perf = {
 (window as any).grafanaStreamingPerf = perf;
 
 // target is 20hz (50ms), but we poll at 100ms to smooth out jitter
-const interval = 100;
-
-function measure() {
-  const now = Date.now();
-  perf.last = now;
-  perf.budget = (now - lastUpdate) / interval;
-  perf.ok = perf.budget <= perf.threshold;
-  lastUpdate = now;
-}
-
-setInterval(measure, interval);
+//const interval = 100;
+//
+//function measure() {
+//  const now = Date.now();
+//  perf.last = now;
+//  perf.budget = (now - lastUpdate) / interval;
+//  perf.ok = perf.budget <= perf.threshold;
+//  lastUpdate = now;
+//}
+//
+//setInterval(measure, interval);

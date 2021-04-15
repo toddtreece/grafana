@@ -75,7 +75,7 @@ module.exports = {
     fs: 'empty',
   },
   plugins: [
-    new WorkerPlugin({ preserveTypeModule: true }),
+    new WorkerPlugin({ sharedWorker: true, globalObject: 'self' }),
     new CopyUniconsPlugin(),
     new MonacoWebpackPlugin({
       // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
@@ -206,6 +206,12 @@ module.exports = {
         },
         moment: {
           test: /[\\/]node_modules[\\/]moment[\\/].*[jt]sx?$/,
+          chunks: 'initial',
+          priority: 20,
+          enforce: true,
+        },
+        centrifuge: {
+          test: /[\\/]node_modules[\\/]centrifuge[\\/].*[jt]sx?$/,
           chunks: 'initial',
           priority: 20,
           enforce: true,

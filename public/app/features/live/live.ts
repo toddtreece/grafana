@@ -1,5 +1,5 @@
 import Centrifuge from 'centrifuge/dist/centrifuge';
-import { GrafanaLiveSrv, setGrafanaLiveSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+import { GrafanaLiveSrv, setGrafanaLiveSrv, getGrafanaLiveSrv, config } from '@grafana/runtime';
 import { BehaviorSubject } from 'rxjs';
 import { LiveChannel, LiveChannelScope, LiveChannelAddress, LiveChannelConnectionState } from '@grafana/data';
 import { CentrifugeLiveChannel, getErrorChannel } from './channel';
@@ -20,12 +20,16 @@ import {
   WorkerSubscriptionEvent,
 } from './types';
 
+const liveUrl = `${config.appUrl}live/ws`.replace(/^(http)(s)?:\/\//, 'ws$2://');
 export const sessionId =
   (window as any)?.grafanaBootData?.user?.id +
   '/' +
   Date.now().toString(16) +
   '/' +
   Math.random().toString(36).substring(2, 15);
+
+const worker = new Worker('./live-worker', { name: 'live-worker', type: 'module' });
+//const worker = new Worker('./test-worker', { name: 'test-worker', type: 'module' });
 
 export class CentrifugeSrv implements GrafanaLiveSrv {
   readonly open = new Map<string, CentrifugeLiveChannel>();
@@ -44,11 +48,8 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
       [LiveChannelScope.Stream]: new GrafanaLiveStreamScope(),
     };
 
-    this.worker = new Worker('./live-worker.ts', { name: 'live-worker', type: 'module' });
-    // @ts-ignore
-    this.worker?.onmessage?.((e: MessageEvent<any>) => {
+    worker.onmessage = (e: MessageEvent<any>) => {
       const event: WorkerEvent = e.data;
-      console.log(event);
       switch (event.type) {
         case WorkerEventEnum.Connected:
           return this.onConnect();
@@ -58,9 +59,11 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
         case WorkerEventEnum.Subscribed:
         case WorkerEventEnum.SubscriptionFailed:
         case WorkerEventEnum.Unsubscribed:
-          return this.onDisconnect();
+          return this.handleSubscriptionEvent(event);
+        default:
+          console.log(event);
       }
-    });
+    };
     this.connect();
   }
 
@@ -69,8 +72,8 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
   //----------------------------------------------------------
 
   connect = () => {
-    const connect: WorkerConnect = { type: WorkerRequestType.Connect, sessionId };
-    this.worker.postMessage(connect);
+    const connect: WorkerConnect = { type: WorkerRequestType.Connect, sessionId, liveUrl };
+    worker.postMessage(connect);
   };
 
   onConnect = () => {
@@ -85,7 +88,7 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
 
   subscribe = (id: string, events: Centrifuge.SubscriptionEvents) => {
     const sub: WorkerSubscribe = { type: WorkerRequestType.Subscribe, id };
-    this.worker.postMessage(sub);
+    worker.postMessage(sub);
     this.subscriptions.set(id, events);
   };
 
