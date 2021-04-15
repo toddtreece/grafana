@@ -1,5 +1,5 @@
 import Centrifuge from 'centrifuge/dist/centrifuge';
-import { GrafanaLiveSrv, setGrafanaLiveSrv, getGrafanaLiveSrv, config } from '@grafana/runtime';
+import { GrafanaLiveSrv, setGrafanaLiveSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { BehaviorSubject } from 'rxjs';
 import { LiveChannel, LiveChannelScope, LiveChannelAddress, LiveChannelConnectionState } from '@grafana/data';
 import { CentrifugeLiveChannel, getErrorChannel } from './channel';
@@ -11,6 +11,14 @@ import {
   GrafanaLiveStreamScope,
 } from './scopes';
 import { registerLiveFeatures } from './features';
+import {
+  WorkerConnect,
+  WorkerEvent,
+  WorkerEventEnum,
+  WorkerRequestType,
+  WorkerSubscribe,
+  WorkerSubscriptionEvent,
+} from './types';
 
 export const sessionId =
   (window as any)?.grafanaBootData?.user?.id +
@@ -21,34 +29,14 @@ export const sessionId =
 
 export class CentrifugeSrv implements GrafanaLiveSrv {
   readonly open = new Map<string, CentrifugeLiveChannel>();
+  readonly subscriptions = new Map<string, Centrifuge.SubscriptionEvents>();
 
-  readonly centrifuge: Centrifuge;
+  readonly worker: Worker;
   readonly connectionState: BehaviorSubject<boolean>;
-  readonly connectionBlocker: Promise<void>;
   readonly scopes: Record<LiveChannelScope, GrafanaLiveScope>;
 
   constructor() {
-    // build live url replacing scheme in appUrl.
-    const liveUrl = `${config.appUrl}live/ws`.replace(/^(http)(s)?:\/\//, 'ws$2://');
-    this.centrifuge = new Centrifuge(liveUrl, {
-      debug: true,
-    });
-    this.centrifuge.setConnectData({
-      sessionId,
-    });
-    this.centrifuge.connect(); // do connection
-    this.connectionState = new BehaviorSubject<boolean>(this.centrifuge.isConnected());
-    this.connectionBlocker = new Promise<void>((resolve) => {
-      if (this.centrifuge.isConnected()) {
-        return resolve();
-      }
-      const connectListener = () => {
-        resolve();
-        this.centrifuge.removeListener('connect', connectListener);
-      };
-      this.centrifuge.addListener('connect', connectListener);
-    });
-
+    this.connectionState = new BehaviorSubject<boolean>(false);
     this.scopes = {
       [LiveChannelScope.Grafana]: grafanaLiveCoreFeatures,
       [LiveChannelScope.DataSource]: new GrafanaLiveDataSourceScope(),
@@ -56,28 +44,65 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
       [LiveChannelScope.Stream]: new GrafanaLiveStreamScope(),
     };
 
-    // Register global listeners
-    this.centrifuge.on('connect', this.onConnect);
-    this.centrifuge.on('disconnect', this.onDisconnect);
-    this.centrifuge.on('publish', this.onServerSideMessage);
+    this.worker = new Worker('./live-worker.ts', { name: 'live-worker', type: 'module' });
+    // @ts-ignore
+    this.worker?.onmessage?.((e: MessageEvent<any>) => {
+      const event: WorkerEvent = e.data;
+      console.log(event);
+      switch (event.type) {
+        case WorkerEventEnum.Connected:
+          return this.onConnect();
+        case WorkerEventEnum.Disconnected:
+          return this.onDisconnect();
+        case WorkerEventEnum.Received:
+        case WorkerEventEnum.Subscribed:
+        case WorkerEventEnum.SubscriptionFailed:
+        case WorkerEventEnum.Unsubscribed:
+          return this.onDisconnect();
+      }
+    });
+    this.connect();
   }
 
   //----------------------------------------------------------
   // Internal functions
   //----------------------------------------------------------
 
-  onConnect = (context: any) => {
-    console.log('CONNECT', context);
+  connect = () => {
+    const connect: WorkerConnect = { type: WorkerRequestType.Connect, sessionId };
+    this.worker.postMessage(connect);
+  };
+
+  onConnect = () => {
+    console.log('CONNECT');
     this.connectionState.next(true);
   };
 
-  onDisconnect = (context: any) => {
-    console.log('onDisconnect', context);
+  onDisconnect = () => {
+    console.log('DISCONNECT');
     this.connectionState.next(false);
   };
 
-  onServerSideMessage = (context: any) => {
-    console.log('Publication from server-side channel', context);
+  subscribe = (id: string, events: Centrifuge.SubscriptionEvents) => {
+    const sub: WorkerSubscribe = { type: WorkerRequestType.Subscribe, id };
+    this.worker.postMessage(sub);
+    this.subscriptions.set(id, events);
+  };
+
+  handleSubscriptionEvent = (event: WorkerSubscriptionEvent) => {
+    const typeToFnMap = {
+      [WorkerEventEnum.Received]: 'publish',
+      [WorkerEventEnum.Subscribed]: 'subscribe',
+      [WorkerEventEnum.SubscriptionFailed]: 'error',
+      [WorkerEventEnum.Unsubscribed]: 'unsubscribe',
+    };
+    const subscription = this.subscriptions.get(event.id);
+    if (!subscription) {
+      return;
+    }
+    // @ts-ignore
+    const fn = subscription[typeToFnMap[event.type]];
+    fn(event.context);
   };
 
   /**
@@ -125,14 +150,11 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
     if (!config) {
       throw new Error('unknown path: ' + addr.path);
     }
-    if (config.canPublish?.()) {
-      channel.publish = (data: any) => this.centrifuge.publish(channel.id, data);
-    }
     const events = channel.initalize(config);
-    if (!this.centrifuge.isConnected()) {
-      await this.connectionBlocker;
+    if (!this.isConnected()) {
+      return;
     }
-    channel.subscription = this.centrifuge.subscribe(channel.id, events);
+    this.subscribe(channel.id, events);
     return;
   }
 
@@ -144,7 +166,7 @@ export class CentrifugeSrv implements GrafanaLiveSrv {
    * Is the server currently connected
    */
   isConnected() {
-    return this.centrifuge.isConnected();
+    return this.connectionState.getValue();
   }
 
   /**

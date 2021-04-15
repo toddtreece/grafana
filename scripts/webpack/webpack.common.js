@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 
+const WorkerPlugin = require('worker-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const getBabelConfig = require('./babel.config');
 
@@ -74,6 +75,7 @@ module.exports = {
     fs: 'empty',
   },
   plugins: [
+    new WorkerPlugin({ preserveTypeModule: true }),
     new CopyUniconsPlugin(),
     new MonacoWebpackPlugin({
       // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options

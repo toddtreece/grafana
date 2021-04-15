@@ -8,7 +8,7 @@ import {
   LiveChannelPresenceStatus,
   LiveChannelAddress,
 } from '@grafana/data';
-import Centrifuge, {
+import {
   JoinLeaveContext,
   PublicationContext,
   SubscribeErrorContext,
@@ -33,7 +33,6 @@ export class CentrifugeLiveChannel<TMessage = any, TPublish = any> implements Li
 
   /** Static definition of the channel definition.  This may describe the channel usage */
   config?: LiveChannelConfig;
-  subscription?: Centrifuge.Subscription;
   shutdownCallback?: () => void;
 
   constructor(id: string, addr: LiveChannelAddress) {
@@ -103,14 +102,6 @@ export class CentrifugeLiveChannel<TMessage = any, TPublish = any> implements Li
       events.leave = (ctx: JoinLeaveContext) => {
         this.stream.next({ type: LiveChannelEventType.Leave, user: ctx.info.user });
       };
-
-      this.getPresence = () => {
-        return this.subscription!.presence().then((v) => {
-          return {
-            users: Object.keys(v.presence),
-          };
-        });
-      };
     }
     return events;
   }
@@ -159,12 +150,6 @@ export class CentrifugeLiveChannel<TMessage = any, TPublish = any> implements Li
   disconnect() {
     this.currentStatus.state = LiveChannelConnectionState.Shutdown;
     this.currentStatus.timestamp = Date.now();
-
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription.removeAllListeners(); // they keep all listeners attached after unsubscribe
-      this.subscription = undefined;
-    }
 
     this.stream.complete();
 
